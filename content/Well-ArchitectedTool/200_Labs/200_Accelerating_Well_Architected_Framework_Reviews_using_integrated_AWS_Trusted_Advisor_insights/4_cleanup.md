@@ -21,7 +21,7 @@ The following instructions will remove the resources that you have created in th
 
 #### Cleaning up OpsItems
 
-Depending on the number of workloads defined and documented in the AWS WA Tool and the number of best practices missing in each workload, the walkthrough of the solution in this lab could potentially create a large number of OpsItems. You can set the status of the OpsItems to **Resolved** manually from the console, or you can use [this Python script](/watool/200_Manage_Workload_Risks_with_OpsCenter/Code/clear_OpsItems.py) that uses Boto3 to set the status of all OpsItems with the source of **Well-Architected** to **Resolved**.
+Depending on the number of workloads defined and documented in the AWS WA Tool and the number of best practices missing in each workload, the walkthrough of the solution in this lab could potentially create a large number of OpsItems. You can set the status of the OpsItems to **Resolved** manually from the console, or you can use [this Python script](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Code/clear_OpsItems.py) that uses Boto3 to set the status of all OpsItems with the source of **Well-Architected** to **Resolved**.
 
 To use the cleanup script, make sure you have Python 3 and the [AWS SDK for Python (Boto3)](https://aws.amazon.com/sdk-for-python/) installed. The environment must also be [configured with AWS credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) to make API calls to Systems Manager. The script requires one argument - the AWS Region used to walk through this lab.
 
