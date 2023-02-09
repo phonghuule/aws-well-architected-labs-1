@@ -6,17 +6,10 @@ chapter: false
 weight: 1
 pre: "<b>1. </b>"
 ---
-
-The AWS WA Tool API provides programmatic access to the AWS WA Tool and can be used to manage workloads, retrieve risk information and improvement plans. AWS WA Tool API calls are made from a Lambda function that is invoked periodically using [Amazon EventBridge](https://aws.amazon.com/eventbridge/). The API calls retrieve workload details such as number of [High Risk Issues (HRIs) and Medium Risk Issues (MRIs)](https://docs.aws.amazon.com/wellarchitected/latest/userguide/workloads.html#wat-hri-mri), best practices missing, and improvement plans. Using this information, the Lambda function creates OpsItems within OpsCenter for best practices missing from all workloads in the AWS Region the solution is deployed in. An Amazon DynamoDB table is used to maintain state and ensure duplicate OpsItems are not being created for the same missing best practice within a workload. Setting the status of an OpsItem to **Resolved** will trigger a notification to an [Amazon Simple Notification Service (SNS)](https://aws.amazon.com/sns/) topic. SNS invokes a second Lambda function which updates the workload on the AWS WA Tool with the best practice specified in the OpsItem that was resolved. This second function then updates the workload state in DynamoDB.
-
-![Architecture](/watool/200_Manage_Workload_Risks_with_OpsCenter/Images/Architecture.png?classes=lab_picture_auto)
-
 You will use AWS CloudFormation to deploy some of the infrastructure for this lab. The CloudFormation stack that you provision will create the following resources:
 
-* An AWS Identity and Access Management (IAM) role
-* An SNS Topic
-* An SNS Topic policy
-* A DynamoDB table
+* A Virtual Private Cloud to provide an isolated environment for the application
+* A LAMP stack to simulate a web application.
 
 ### 1.1 Log into the AWS console {#awslogin}
 
@@ -30,18 +23,17 @@ You will use AWS CloudFormation to deploy some of the infrastructure for this la
 {{% /expand%}}
 
 ### 1.2 Deploy the workload using AWS CloudFormation
-
-1. Download the [risk_management.yaml](/watool/200_Manage_Workload_Risks_with_OpsCenter/Code/risk_management.yaml) CloudFormation template
+1. Download the [AppCreationWithAppRegistry.yaml](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Code/AppCreationWithAppRegistry.yaml) CloudFormation template
 1. Go to the AWS CloudFormation console at <https://console.aws.amazon.com/cloudformation> and click **Create Stack** > **With new resources (standard)**
 
-    ![CFNCreateStackButton](/watool/200_Manage_Workload_Risks_with_OpsCenter/Images/CFNCreateStackButton.png)
+    ![CFNCreateStackButton](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Images/CFNCreateStackButton.png)
 
 1. For **Prepare template** select **Template is ready**
 
     * For **Template source** select **Upload a template file**
     * Click **Choose file** and select the CloudFormation template you downloaded in the previous step: *risk_management.yaml*
 
-    ![CFNSpecifyTemplate](/watool/200_Manage_Workload_Risks_with_OpsCenter/Images/CFNUploadTemplateFile.png)
+    ![CFNSpecifyTemplate](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Images/CFNUploadTemplateFile.png)
 
 1. Click **Next**
 1. For **Stack name** use `WA-risk-management` and click **Next**
@@ -53,7 +45,7 @@ You will use AWS CloudFormation to deploy some of the infrastructure for this la
 
     * Click **Create stack**
 
-    ![CFNIamCapabilities](/watool/200_Manage_Workload_Risks_with_OpsCenter/Images/CFNIamCapabilities.png)
+    ![CFNIamCapabilities](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Images/CFNIamCapabilities.png)
 
 This will take you to the CloudFormation stack status page, showing the stack creation in progress.
 
@@ -71,4 +63,4 @@ To observe the behavior of this solution, you need one or more workloads defined
 
 **NOTE:** Workloads must be defined and documented in the same AWS Region where you are running this lab.
 
-{{< prev_next_button link_prev_url="../" link_next_url="../2_risk_tracking/" />}}
+{{< prev_next_button link_prev_url="../" link_next_url="../2_create_tracking/" />}}
