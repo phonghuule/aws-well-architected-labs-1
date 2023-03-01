@@ -1,0 +1,230 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Launch team resources and register with AWS Service Catalog AppRegistry (fdp-jdh12ifjd)
+
+Parameters:
+  RegionAZ1Name:
+    Description: Availability Zone 1 Name in Region
+    Type: AWS::EC2::AvailabilityZone::Name
+  RegionAZ2Name:
+    Description: Availability Zone 2 Name in Region
+    Type: AWS::EC2::AvailabilityZone::Name
+  EC2KeyPair:
+    Description: Name of existing EC2 key pair for production hosts
+    Type: AWS::EC2::KeyPair::KeyName
+  BastionSSHCIDR:
+    Description: CIDR block to allow access to bastion SSH
+    Type: String
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t2.small
+    AllowedValues:
+    - t2.micro
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    ConstraintDescription: must be a valid EC2 instance type.
+  ApplicationName:
+    Type: String
+    Description: Name of the Application - AppRegistry uses this name to create application.
+    Default: BumbleBeeApplication
+    MinLength: '1'
+    MaxLength: '128'
+    AllowedPattern: "([a-zA-Z0-9][a-zA-Z0-9_-]*)"
+  AttributeGroupOneName:
+    Type: String
+    Description: Name of the first Attribute Group to create.
+    Default: 'Application_Classification_High'
+  AttributeGroupOneDescription:
+    Type: String
+    Description: Description of the first Attribute Group to create.
+    Default: 'Applications classified as high.'
+  AttributeGroupTwoName:
+    Type: String
+    Description: Name of the second Attribute Group to create.
+    Default: Support_Details
+  AttributeGroupTwoDescription:
+    Type: String
+    Description: Description of the second Attribute Group to create.
+    Default: 'Support information of the application'
+  SupportContact:
+    Type: String
+    Description: Contact email of support team.
+    Default: 'it-support@example.com'
+  ServiceLevelAgreement:
+    Type: String
+    Description: SLA in hours.
+    Default: "4"
+    AllowedValues:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+      - '5'
+  CostCenter:
+    Type: String
+    Description: Cost Center of the Application.
+    Default: "99098"
+    AllowedValues:
+      - "99098"
+      - "11021"
+      - "12301"
+      - "15323"
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: VPC Stack Parameters
+      Parameters:
+      - RegionAZ1Name
+      - RegionAZ2Name
+      - EC2KeyPair
+      - BastionSSHCIDR
+
+    - Label:
+        default: LAMP Stack Parameters
+      Parameters:
+        - InstanceType
+    - Label:
+        default: AppRegistry Parameters
+      Parameters:
+        - ApplicationName
+    - Label:
+        default: First Attribute Group
+      Parameters:
+        - AttributeGroupOneName
+        - AttributeGroupOneDescription
+    - Label:
+        default: Second Attribute group
+      Parameters:
+        - AttributeGroupTwoName
+        - AttributeGroupTwoDescription
+        - SupportContact
+        - ServiceLevelAgreement
+        - CostCenter
+
+Resources:
+  LaunchVPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        RegionAZ1Name: !Ref RegionAZ1Name
+        RegionAZ2Name: !Ref RegionAZ2Name
+        EC2KeyPair: !Ref EC2KeyPair
+        BastionSSHCIDR: !Ref BastionSSHCIDR
+        EnableVPCFlowLogs: 'false'
+      TemplateURL: https://marketplace-sa-resources.s3.amazonaws.com/blogs/sc-vpc-ra.yml
+
+  LaunchLampStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        InstanceType: !Ref InstanceType
+        EC2KeyPair: !Ref EC2KeyPair
+        VPC: !GetAtt LaunchVPC.Outputs.VPCID
+        WebSubnetId: !GetAtt LaunchVPC.Outputs.SubnetAPublicID
+      TemplateURL: https://marketplace-sa-resources.s3.amazonaws.com/blogs/LAMP_Single_Instance.yml
+
+  DeployCloudWatchAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ApplicationName: !Ref ApplicationName
+        WebServerInstance: !GetAtt LaunchLampStack.Outputs.WebServerInstance
+        SNSNotificationEmail: !Ref SupportContact
+      TemplateURL: https://marketplace-sa-resources.s3.amazonaws.com/blogs/cloudwatch-alarms.yaml
+
+  EnableConfigRules:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://marketplace-sa-resources.s3.amazonaws.com/blogs/config-rules.yaml
+
+  CreateApplication:
+    Type: AWS::ServiceCatalogAppRegistry::Application
+    Properties: 
+      Description: !Join ['-', ['Application for', !Ref ApplicationName]]
+      Name: !Ref ApplicationName
+      Tags: 
+        Department : 'Innovation Labs'
+        CostCenter : '1234'
+        Team : 'research'
+
+  CreateAttributeGroupOne:
+    Type: AWS::ServiceCatalogAppRegistry::AttributeGroup
+    Properties: 
+      Attributes: 
+        ApplicationResilience: 'high'
+        DataSecurity: 'high'
+        DataSensitivity: 'high'
+      Description: !Ref AttributeGroupOneDescription 
+      Name: !Ref AttributeGroupOneName
+      Tags: 
+        Project : !Ref ApplicationName
+
+  CreateAttributeGroupTwo:
+    Type: AWS::ServiceCatalogAppRegistry::AttributeGroup
+    Properties: 
+      Attributes: 
+        SupportContact: !Ref SupportContact
+        SLA: !Ref ServiceLevelAgreement
+        CostCenter: !Ref CostCenter
+      Description: !Ref AttributeGroupTwoDescription 
+      Name: !Ref AttributeGroupTwoName
+      Tags: 
+        Project : !Ref ApplicationName
+
+  AssociateAttributeGroupOne:
+    Type: AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation
+    Properties: 
+      Application: !GetAtt 'CreateApplication.Id'
+      AttributeGroup: !GetAtt 'CreateAttributeGroupOne.Id'
+
+  AssociateAttributeGroupTwo:
+    Type: AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation
+    Properties: 
+      Application: !GetAtt 'CreateApplication.Id'
+      AttributeGroup: !GetAtt 'CreateAttributeGroupTwo.Id'
+
+  AssociateResourceVPC:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties: 
+      Application: !GetAtt 'CreateApplication.Id'
+      Resource: !Select [1, !Split ['/', !Ref LaunchVPC]]
+      ResourceType: "CFN_STACK"
+
+  AssociateResourceLAMPStack:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties: 
+      Application: !GetAtt 'CreateApplication.Id'
+      Resource: !Select [1, !Split ['/', !Ref LaunchLampStack]]
+      ResourceType: "CFN_STACK"
+
+  AssociateResourceConfigRules:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties: 
+      Application: !GetAtt 'CreateApplication.Id'
+      Resource: !Select [1, !Split ['/', !Ref EnableConfigRules]]
+      ResourceType: "CFN_STACK"
+
+  AssociateResourceCloudWatchAlarms:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties: 
+      Application: !GetAtt 'CreateApplication.Id'
+      Resource: !Select [1, !Split ['/', !Ref DeployCloudWatchAlarms]]
+      ResourceType: "CFN_STACK"
+
+Outputs:
+  ApplicationSCURL:
+    Description: URL to access Application in Service Catalog AppRegistry
+    Value:
+      Fn::Join:
+      - '/'
+      - - https://console.aws.amazon.com/servicecatalog#/applications
+        - Fn::GetAtt:
+          - CreateApplication
+          - Id

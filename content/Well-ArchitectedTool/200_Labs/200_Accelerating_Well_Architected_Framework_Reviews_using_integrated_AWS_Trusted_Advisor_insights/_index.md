@@ -14,26 +14,23 @@ tags:
 
 ## Introduction
 
-In this lab, you will become familiar with how you can better manage workload risks identified in the [AWS Well-Architected Tool](https://aws.amazon.com/well-architected-tool/) (AWS WA Tool). You will learn how to efficiently track risks across your entire technology portfolio while maintaining a single source of truth for risk information in an automated manner.
+In this lab, you will learn how to use the new feature [AWS Well-Architected integration with AWS Trusted Advisor](https://aws.amazon.com/about-aws/whats-new/2022/11/aws-well-architected-tool-workload-discovery-speeds-reviews/) to accelerate Well-Architected Framework reviews (WAFRs). 
 
-Most workloads contain risks or opportunities for improvement which can lead to better business outcomes when addressed. Risk mitigation should be prioritized based on the impact it can have on your business. As the number of workloads increases, it can be a challenge to manage and prioritize which risks to address first.
+Collecting information on AWS resources using Trusted Advisor checks allows customers to validate if a workload’s state is aligned with AWS best practices. 
+The new AWS Well-Architected Tool [integration with AWS Trusted Advisor](https://aws.amazon.com/about-aws/whats-new/2022/11/aws-well-architected-tool-workload-discovery-speeds-reviews/) makes it easier and faster to gain insights during WAFRs. The Trusted Advisor checks that are relevant to a specific set of best practices have been mapped to the corresponding questions in Well-Architected. The new feature now shows the mapped Trusted Advisor checks directly in the Well-Architected Tool.
 
-By tracking all risks in a single location, you can better understand which risks are related, prioritize them accordingly, and implement best practices to mitigate them. Being able to track risks across workloads will allow you to prevent duplication of efforts and enables teams to be aligned on priorities for risk remediation.
-
-In this lab, you will use AWS WA Tool APIs and create OpsItems in [AWS Systems Manager OpsCenter](https://docs.aws.amazon.com/systems-manager/latest/userguide/OpsCenter.html) to track best practices missing from your workloads. You can then view, investigate, and resolve those OpsItems in a single location, and automatically update the risk status of the workload on the AWS WA Tool. The entire process will be automated using [AWS Lambda](https://aws.amazon.com/lambda/) functions.
-
-The skills you learn will help you create risk management workflows which will help you determine your priorities in alignment with Operational Excellence best practices of the [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
+The skills you learn will help you to accelerate your cloud optimization by reducing the time required to measure workloads against the AWS best practices in the [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
 
 ## Goals:
 
-* Create actionable work items from workload risks
-* Maintain a single source of truth for workload risk information
+* Enabling the AWS Well-Architected Tool integration with AWS Trusted Advisor
+* Reduce the time required to perform WAFRs using insights from AWS Trusted Advisor
 
 ## Prerequisites:
 
 * An [AWS Account](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html) that you are able to use for testing, that is not used for production or other purposes.
-* An IAM user or role in your AWS account that has Administrator privileges.
-* [Define and document the workload state](https://wellarchitectedlabs.com/well-architectedtool/100_labs/100_walkthrough_of_the_well-architected_tool/) for one or more workloads in the AWS WA Tool.
+* An Identity and Access Management (IAM) user or federated credentials into that account that has permissions to use Well-Architected Tool ([WellArchitectedConsoleFullAccess managed policy](https://docs.aws.amazon.com/wellarchitected/latest/userguide/security_iam_id-based-policy-examples.html#security_iam_id-based-policy-examples-full-access)).
+* Access to [AWS Trusted Advisor](https://aws.amazon.com/premiumsupport/knowledge-center/trusted-advisor-intro/) Amazon Trusted Advisor provides best practices (or checks) in four categories: cost optimization, security, fault tolerance, and performance improvement. 
 
 **NOTE**: You will be billed for any applicable AWS resources used as part of this lab, that are not covered in the AWS Free Tier.
 

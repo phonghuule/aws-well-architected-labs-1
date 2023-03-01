@@ -28,6 +28,8 @@ You will use AWS CloudFormation to deploy some of the infrastructure for this la
 
     ![CFNCreateStackButton](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Images/CFNCreateStackButton.png)
 
+    200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights
+
 1. For **Prepare template** select **Template is ready**
 
     * For **Template source** select **Upload a template file**
@@ -36,12 +38,10 @@ You will use AWS CloudFormation to deploy some of the infrastructure for this la
     ![CFNSpecifyTemplate](/watool/200_Accelerating_Well_Architected_Framework_Reviews_using_integrated_AWS_Trusted_Advisor_insights/Images/CFNUploadTemplateFile.png)
 
 1. Click **Next**
-1. For **Stack name** use `WA-risk-management` and click **Next**
+1. For **Stack name** use `WA-TrustedAdvisor` and click **Next**
 1. For **Configure stack options** click **Next**
 1. On the **Review** page:
     * Scroll to the end of the page and select **I acknowledge that AWS CloudFormation might create IAM resources with custom names.** This ensures CloudFormation has permission to create resources related to IAM. Additional information can be found [here](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html).
-
-    **Note:** The template creates an IAM role for the Lambda function. These are the minimum permissions necessary for the function to make API calls to AWS services such as DynamoDB, Systems Manager, and the Well-Architected Tool. These permissions can be reviewed in the CloudFormation template under the "Resources" section - **LambdaRole**.
 
     * Click **Create stack**
 
@@ -56,11 +56,5 @@ This will take you to the CloudFormation stack status page, showing the stack cr
 The stack takes about 2 mins to create all the resources. Periodically refresh the page until you see that the **Stack Status** is in **CREATE_COMPLETE**.
 
 Once the stack is in **CREATE_COMPLETE**, visit the **Outputs** section for the stack and note down the **Key** and **Value** for each of the outputs. This information will be used in the lab.
-
-### 1.3 Define and document workload state
-
-To observe the behavior of this solution, you need one or more workloads defined and documented in the AWS Well-Architected Tool. Refer to the [Walkthrough of the Well-Architected Tool](https://wellarchitectedlabs.com/well-architectedtool/100_labs/100_walkthrough_of_the_well-architected_tool/) to learn how to do this.
-
-**NOTE:** Workloads must be defined and documented in the same AWS Region where you are running this lab.
 
 {{< prev_next_button link_prev_url="../" link_next_url="../2_create_tracking/" />}}

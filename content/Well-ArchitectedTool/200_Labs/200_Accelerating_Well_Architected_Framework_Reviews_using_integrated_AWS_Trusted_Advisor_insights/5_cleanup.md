@@ -3,7 +3,7 @@ title: "Teardown"
 date: 2021-08-31T11:16:09-04:00
 chapter: false
 pre: "<b>4. </b>"
-weight: 4
+weight: 5
 ---
 
 The following instructions will remove the resources that you have created in this lab.
